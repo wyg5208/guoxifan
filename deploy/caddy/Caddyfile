@@ -1,0 +1,68 @@
+# Caddy 反向代理（docs/06 §3.5）
+# 部署位置：D:\village\tools\caddy\Caddyfile
+# 使用前替换 api.example.com 与邮箱；前端在 Vercel，不在本机托管。
+#
+# 校验：caddy.exe validate --config D:\village\tools\caddy\Caddyfile
+# 安装：install-service.ps1（会顺带注册 Caddy 服务）
+
+{
+	email you@example.com
+	admin off
+}
+
+api.example.com {
+	encode zstd gzip
+
+	# 派生媒体：静态直出，文件名带唯一 id，可以长缓存
+	handle_path /media/derived/* {
+		root * D:/village-data/derived
+		header Cache-Control "public, max-age=31536000, immutable"
+		file_server
+	}
+
+	# 聊天附件同样走静态直出
+	handle_path /media/attachments/* {
+		root * D:/village-data/attachments
+		header Cache-Control "public, max-age=604800"
+		file_server
+	}
+
+	# REST API
+	handle /api/* {
+		reverse_proxy 127.0.0.1:8000 {
+			header_up X-Real-IP {remote_host}
+			flush_interval -1
+		}
+	}
+
+	# WebSocket：Caddy 自动处理 Upgrade，flush_interval -1 让帧实时下发
+	handle /ws {
+		reverse_proxy 127.0.0.1:8000 {
+			flush_interval -1
+		}
+	}
+
+	# 健康检查
+	handle /healthz {
+		reverse_proxy 127.0.0.1:8000
+	}
+
+	# 其余（原图、视频切片、上传接口）都交给 FastAPI，由它做鉴权与限流
+	handle {
+		reverse_proxy 127.0.0.1:8000
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		-Server
+	}
+
+	log {
+		output file D:/village/logs/caddy-api.log {
+			roll_size 20mb
+			roll_keep 10
+		}
+		format json
+	}
+}

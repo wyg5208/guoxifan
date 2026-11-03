@@ -1,0 +1,32 @@
+[project]
+name = "village-api"
+version = "0.1.0"
+description = "过溪畈 · 老村记忆 API"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.32",
+  "sqlalchemy[asyncio]>=2.0",
+  "aiosqlite>=0.20",
+  "pydantic-settings>=2.4",
+  "pyjwt>=2.8",
+  "argon2-cffi>=23.1",
+  "python-multipart>=0.0.9",
+  "aiofiles>=24.1",
+  "pillow>=10.4",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.24", "httpx>=0.27", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["B008"]

@@ -1,0 +1,37 @@
+# ---------------------------------------------------------------- 通用
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.tmp
+
+# 本地验收截图默认不入库，docs/qa/ 下那份作为验收证据保留
+qa-*.png
+!docs/qa/*.png
+
+# ---------------------------------------------------------------- Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# ---------------------------------------------------------------- 后端数据
+# 真实照片与本地数据库绝不入库；生产数据在 D:\village-data
+api/.env
+*.db
+*.db-shm
+*.db-wal
+api/media/
+
+# ---------------------------------------------------------------- 前端
+web/node_modules/
+web/dist/
+web/.vite/
+web/.env
+web/.env.local
+web/.env.*.local
+!web/.env.example
